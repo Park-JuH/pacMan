@@ -33,9 +33,9 @@ void cursor_view(int s)      // 0넣으면숨기기, 1넣으면보이기
 void gotoxy(int x, int y)
 
 {
-		COORD pos = { x,y };
+	COORD pos = { x,y };
 
-		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 
 }
 
@@ -79,17 +79,49 @@ int main()
 						"110090009000000900090000000900090009000900000009000011",
 						"111111111111111111111111111111111111111111111111111111" };
 
-	int x = 2, y = 2, over = 1, coin_total = 0, coin = 0, count;
+
+	int x = 2, y = 2, over = 1, coin_total = 0, coin = 0, count, over_count = 0;
 	char key_value = 'd';
-	int x_bf, y_bf, i, j, change = 0, change_ct = 0, ghost_timer = 0;
+	int x_bf, y_bf, i = 0, j = 0, change = 0, change_ct = 0, ghost_timer = 0, jump = 0;
 	clock_t start, end, ghost_start, ghost_end; //특정한 것을 먹을경우 고스트를 먹을 수 있음
 	srand(time(NULL));
+	int ghost_bf_x[3], ghost_bf_y[3];
+	while (i < 33)
+	{
+		j = 0;
+		while (j < 54)
+		{
+			if (map_xy[i][j] == '1')
+				printf("1");
+			else if (map_xy[i][j] == '2')
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+				printf("@");
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+			}
+			else if (map_xy[i][j] == '0')
+				printf(" ");
+			else if (map_xy[i][j] == '9')
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+				printf("$");
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+			}
+			else if (map_xy[i][j] == '7')
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
+				printf("*");
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+			}
+			j++;
+		}
+		printf("\n");
+		i++;
+	}
 
 	while (1)
 	{
 		i = 0, j = 0;
-		x_bf = x;
-		y_bf = y;
 		if (_kbhit())
 		{
 			key_value = _getch();
@@ -123,8 +155,6 @@ int main()
 		}
 		else
 		{
-			x_bf = x;
-			y_bf = y;
 			switch (key_value)
 			{
 			case 'w':
@@ -154,62 +184,102 @@ int main()
 			}
 		}
 
-		int i = 0;
 		int ghost_i = 0, ghost_j = 0;
-		while (i < 33)
+
+		if (jump == 1)
 		{
-			int j = 0;
-			while (j < 54)
+			while (i < 33)
 			{
-				if (map_xy[i][j] == '1')
-					printf("1");
-				if (map_xy[i][j] == '2')
+				j = 0;
+				while (j < 54)
 				{
-					if (change == 1)
+					if (map_xy[i][j] == '2')
 					{
-						end = clock();
-						if (end - start < 15000)
+						if (change == 1)
+						{
+							end = clock();
+							if (end - start < 15000)
+							{
+								for (int k = 0; k < 3; k++)
+								{
+									gotoxy(ghost_bf_y[k], ghost_bf_x[k]);
+									printf(" ");
+								}
+								ghost[ghost_i].x = i;
+								ghost[ghost_j].y = j;
+								ghost_i++;
+								ghost_j++;
+								gotoxy(j, i);
+								SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+								printf("#");
+								SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+							}
+							else
+								change = 0;
+						}
+						else
+						{
+							for (int k = 0; k < 3; k++)
+							{
+								gotoxy(ghost_bf_y[k], ghost_bf_x[k]);
+								printf(" ");
+							}
+							ghost[ghost_i].x = i;
+							ghost[ghost_j].y = j;
+							ghost_i++;
+							ghost_j++;
+							gotoxy(j, i);
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+							printf("@");
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+						}
+					}
+					j = j + 1;
+				}
+				printf("\n");
+				i++;
+			}
+		}
+		else
+		{
+			while (i < 33)
+			{
+				j = 0;
+				while (j < 54)
+				{
+					if (map_xy[i][j] == '2')
+					{
+						if (change == 1)
+						{
+							end = clock();
+							if (end - start < 15000)
+							{
+								for (int k = 0; k < 3; k++)
+								{
+									gotoxy(ghost_bf_y[k], ghost_bf_x[k]);
+									printf(" ");
+								}
+								ghost[ghost_i].x = i;
+								ghost[ghost_j].y = j;
+								ghost_i++;
+								ghost_j++;
+							}
+							else
+								change = 0;
+						}
+						else
 						{
 							ghost[ghost_i].x = i;
 							ghost[ghost_j].y = j;
 							ghost_i++;
 							ghost_j++;
-							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
-							printf("#");
-							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 						}
-						else
-							change = 0;
 					}
-					else
-					{
-						ghost[ghost_i].x = i;
-						ghost[ghost_j].y = j;
-						ghost_i++;
-						ghost_j++;
-						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
-						printf("@");
-						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-					}
+					j = j + 1;
 				}
-				if (map_xy[i][j] == '0' || map_xy[i][j] == '5')
-					printf(" ");
-				if (map_xy[i][j] == '9')
-				{
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
-					printf("$");
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-				}
-				if (map_xy[i][j] == '7')
-				{
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
-					printf("*");
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-				}
-				j = j + 1;
+				i++;
 			}
-			printf("\n");
-			i++;
+			jump = 1;
 		}
 
 		if (map_xy[x][y] == '7') //특별 스코어
@@ -254,19 +324,142 @@ int main()
 			}
 		}
 
-		gotoxy(y, x);
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
-		printf("C");
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+		if (key_value == 'w')
+		{
+			gotoxy(y, x + 1);
+			printf(" ");
+			gotoxy(y, x);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+			printf("c");
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+			if (map_xy[x][y + 1] == '1')
+			{
+				gotoxy(y + 1, x);
+				printf("1");
+			}
+			if (map_xy[x][y - 1] == '1')
+			{
+				gotoxy(y - 1, x);
+				printf("1");
+			}
+			if (map_xy[x + 1][y] == '1')
+			{
+				gotoxy(y, x + 1);
+				printf("1");
+			}
+			if (map_xy[x - 1][y] == '1')
+			{
+				gotoxy(y, x - 1);
+				printf("1");
+			}
+		}
+		else if (key_value == 'd')
+		{
+			gotoxy(y - 1, x);
+			printf(" ");
+			gotoxy(y, x);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+			printf("c");
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+			if (map_xy[x][y + 1] == '1')
+			{
+				gotoxy(y + 1, x);
+				printf("1");
+			}
+			if (map_xy[x][y - 1] == '1')
+			{
+				gotoxy(y - 1, x);
+				printf("1");
+			}
+			if (map_xy[x + 1][y] == '1')
+			{
+				gotoxy(y, x + 1);
+				printf("1");
+			}
+			if (map_xy[x - 1][y] == '1')
+			{
+				gotoxy(y, x - 1);
+				printf("1");
+			}
+		}
+		else if (key_value == 'a')
+		{
+			gotoxy(y + 1, x);
+			printf(" ");
+			gotoxy(y, x);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+			printf("c");
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+			if (map_xy[x][y + 1] == '1')
+			{
+				gotoxy(y + 1, x);
+				printf("1");
+			}
+			if (map_xy[x][y - 1] == '1')
+			{
+				gotoxy(y - 1, x);
+				printf("1");
+			}
+			if (map_xy[x + 1][y] == '1')
+			{
+				gotoxy(y, x + 1);
+				printf("1");
+			}
+			if (map_xy[x - 1][y] == '1')
+			{
+				gotoxy(y, x - 1);
+				printf("1");
+			}
+		}
+		else
+		{
+			gotoxy(y, x - 1);
+			printf(" ");
+			gotoxy(y, x);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+			printf("c");
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+			if (map_xy[x][y + 1] == '1')
+			{
+				gotoxy(y + 1, x);
+				printf("1");
+			}
+			if (map_xy[x][y - 1] == '1')
+			{
+				gotoxy(y - 1, x);
+				printf("1");
+			}
+			if (map_xy[x + 1][y] == '1')
+			{
+				gotoxy(y, x + 1);
+				printf("1");
+			}
+			if (map_xy[x - 1][y] == '1')
+			{
+				gotoxy(y, x - 1);
+				printf("1");
+			}
+		}
 		if (map_xy[x][y] == '9')
 		{
 			coin_total = coin_total + 100;
 			map_xy[x][y] = '0';
+			gotoxy(y, x);
+			printf(" ");
+			over_count++;
 		}
 		gotoxy(62, 2);
 		printf("SCORE: %d", coin_total);
+		if (over_count == 98)
+		{
+			gotoxy(62, 1);
+			printf("Clear!!\n");
+			gotoxy(62, 2);
+			printf("Score: %d", coin_total);
+			return 0;
+		}
 
-		Sleep(100);
+		Sleep(200);
 
 		ghost_j = 0;
 		int ghost_ct = 0, move[3] = { 0. };
@@ -278,12 +471,16 @@ int main()
 				if (map_xy[ghost[ghost_i].x + 1][ghost[ghost_j].y] == '0')
 				{
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y] = '0';
+					ghost_bf_x[ghost_i] = ghost[ghost_i].x;
+					ghost_bf_y[ghost_i] = ghost[ghost_j].y;
 					map_xy[ghost[ghost_i].x + 1][ghost[ghost_j].y] = '2';
 					move[ghost_i] = 1;
 				}
 				else if (map_xy[ghost[ghost_i].x + 1][ghost[ghost_j].y] == '9')
 				{
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y] = '0';
+					ghost_bf_x[ghost_i] = ghost[ghost_i].x;
+					ghost_bf_y[ghost_i] = ghost[ghost_j].y;
 					map_xy[ghost[ghost_i].x + 2][ghost[ghost_j].y] = '2';
 					move[ghost_i] = 1;
 				}
@@ -293,12 +490,16 @@ int main()
 				if (map_xy[ghost[ghost_i].x][ghost[ghost_j].y - 1] == '0')
 				{
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y] = '0';
+					ghost_bf_x[ghost_i] = ghost[ghost_i].x;
+					ghost_bf_y[ghost_i] = ghost[ghost_j].y;
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y - 1] = '2';
 					move[ghost_i] = 1;
 				}
 				else if (map_xy[ghost[ghost_i].x][ghost[ghost_j].y - 1] == '9')
 				{
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y] = '0';
+					ghost_bf_x[ghost_i] = ghost[ghost_i].x;
+					ghost_bf_y[ghost_i] = ghost[ghost_j].y;
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y - 2] = '2';
 					move[ghost_i] = 1;
 				}
@@ -308,12 +509,16 @@ int main()
 				if (map_xy[ghost[ghost_i].x - 1][ghost[ghost_j].y] == '0')
 				{
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y] = '0';
+					ghost_bf_x[ghost_i] = ghost[ghost_i].x;
+					ghost_bf_y[ghost_i] = ghost[ghost_j].y;
 					map_xy[ghost[ghost_i].x - 1][ghost[ghost_j].y] = '2';
 					move[ghost_i] = 1;
 				}
 				else if (map_xy[ghost[ghost_i].x - 1][ghost[ghost_j].y] == '9')
 				{
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y] = '0';
+					ghost_bf_x[ghost_i] = ghost[ghost_i].x;
+					ghost_bf_y[ghost_i] = ghost[ghost_j].y;
 					map_xy[ghost[ghost_i].x - 2][ghost[ghost_j].y] = '2';
 					move[ghost_i] = 1;
 				}
@@ -323,23 +528,26 @@ int main()
 				if (map_xy[ghost[ghost_i].x][ghost[ghost_j].y + 1] == '0')
 				{
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y] = '0';
+					ghost_bf_x[ghost_i] = ghost[ghost_i].x;
+					ghost_bf_y[ghost_i] = ghost[ghost_j].y;
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y + 1] = '2';
 					move[ghost_i] = 1;
 				}
 				else if (map_xy[ghost[ghost_i].x][ghost[ghost_j].y + 1] == '9')
 				{
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y] = '0';
+					ghost_bf_x[ghost_i] = ghost[ghost_i].x;
+					ghost_bf_y[ghost_i] = ghost[ghost_j].y;
 					map_xy[ghost[ghost_i].x][ghost[ghost_j].y + 2] = '2';
 					move[ghost_i] = 1;
 				}
 			}
-			if(move[ghost_i] == 0)
+			if (move[ghost_i] == 0)
 			{
 				ghost_i--;
 				ghost_j--;
 			}
 			ghost_j++;
 		}
-		system("cls");
 	}
 }
